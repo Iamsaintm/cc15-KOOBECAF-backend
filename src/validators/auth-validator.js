@@ -22,10 +22,3 @@ const registerSchema = Joi.object({
 });
 
 exports.registerSchema = registerSchema;
-
-const loginSchema = Joi.object({
-    email: Joi.string().email().required(),
-    password: Joi.string().required(),
-});
-
-exports.loginSchema = loginSchema;
