@@ -6,6 +6,7 @@ const morgan = require("morgan");
 const notFoundMiddleware = require("./middlewares/not-found");
 const errorMiddleware = require("./middlewares/error");
 const rateLimitMiddleware = require("./middlewares/rate-limit");
+const authRoute = require("./routes/auth-route");
 
 const app = express();
 
@@ -14,10 +15,12 @@ app.use(morgan("dev"));
 app.use(rateLimitMiddleware);
 app.use(express.json());
 
+app.use("/auth", authRoute);
+
 app.use(notFoundMiddleware);
 app.use(errorMiddleware);
 
 const PORT = process.env.PORT || 8000;
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+    console.log(`Server running on port ${PORT}`);
 });
