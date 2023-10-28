@@ -194,8 +194,8 @@ const image = [
 ];
 
 async function seedDatabase() {
-    // await prisma.user.createMany({ data: user });
-    // await prisma.category.createMany({ data: category });
+    await prisma.user.createMany({ data: user });
+    await prisma.category.createMany({ data: category });
     await prisma.Product.createMany({ data: Product });
     await prisma.wishlist.createMany({ data: wishlist });
     await prisma.image.createMany({ data: image });
