@@ -77,9 +77,9 @@ model Product {
   status           status        @default(AVAILABLE)
   sellDate         DateTime?
   userId           Int
-  usersId          User          @relation(fields: [userId], references: [id])
+  usersId          User          @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   categoryId       Int
-  categorysId      category      @relation(fields: [categoryId], references: [id])
+  categorysId      category      @relation(fields: [categoryId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   wishlist         wishlist[]
   image            image[]
   chat             chat[]
@@ -94,16 +94,16 @@ model category {
 model wishlist {
   id         Int     @id @default(autoincrement())
   productId  Int
-  productsId Product @relation(fields: [productId], references: [id])
+  productsId Product @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   userId     Int
-  usersId    User    @relation(fields: [userId], references: [id])
+  usersId    User    @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
 model image {
   id         Int     @id @default(autoincrement())
   image      String
   productId  Int
-  productsId Product @relation(fields: [productId], references: [id])
+  productsId Product @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
 model chat {
@@ -111,7 +111,7 @@ model chat {
   message     String
   date        DateTime @default(now())
   productId   Int
-  productsId  Product  @relation(fields: [productId], references: [id])
+  productsId  Product  @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   requesterId Int
   requester   User     @relation("requester", fields: [requesterId], references: [id])
   receiverId  Int
