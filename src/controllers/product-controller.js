@@ -26,6 +26,39 @@ exports.allProduct = async (req, res, next) => {
     }
 };
 
+exports.getProduct = async (req, res, next) => {
+    try {
+        const { value, error } = checkProductIdSchema.validate(req.params);
+        if (error) {
+            return next(error);
+        }
+        const getProduct = await prisma.product.findFirst({
+            where: {
+                id: value.productId,
+            },
+            include: {
+                usersId: {
+                    select: {
+                        firstName: true,
+                        lastName: true,
+                        profileImage: true,
+                    },
+                },
+                image: {
+                    select: {
+                        image: true,
+                    },
+                },
+            },
+        });
+        if (!getProduct) {
+            return next(createError("invalid productId", 400));
+        }
+        res.status(200).json({ getProduct });
+    } catch (err) {
+        next(err);
+    }
+};
 exports.deleteProduct = async (req, res, next) => {
     try {
         const { value, error } = checkProductIdSchema.validate(req.params);
@@ -44,13 +77,11 @@ exports.deleteProduct = async (req, res, next) => {
         if (!existProduct) {
             return next(createError("cannot delete this product", 400));
         }
-        console.log(existProduct);
         await prisma.product.delete({
             where: {
                 id: existProduct.id,
             },
         });
-
         res.status(200).json({ message: "deleted" });
     } catch (err) {
         next(err);
