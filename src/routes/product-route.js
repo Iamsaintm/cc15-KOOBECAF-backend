@@ -5,6 +5,7 @@ const productController = require("../controllers/product-controller");
 const router = express.Router();
 
 router.get("/allproduct", authenticateMiddleware, productController.allProduct);
-router.get("/search", productController.search);
+router.get("/search", authenticateMiddleware, productController.search);
+router.delete("/:productId", authenticateMiddleware, productController.deleteProduct);
 
 module.exports = router;
