@@ -23,3 +23,32 @@ exports.allProduct = async (req, res, next) => {
         next(err);
     }
 };
+
+exports.getProduct = async (req, res, next) => {
+    try {
+        const { productId } = req.params;
+        const getProduct = await prisma.product.findFirst({
+            where: {
+                id: +productId,
+            },
+            include: {
+                usersId: {
+                    select: {
+                        firstName: true,
+                        lastName: true,
+                        profileImage: true,
+                    },
+                },
+                image: {
+                    select: {
+                        image: true,
+                    },
+                },
+            },
+        });
+
+        res.status(200).json({ getProduct });
+    } catch (err) {
+        next(err);
+    }
+};
