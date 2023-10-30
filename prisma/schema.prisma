@@ -45,12 +45,12 @@ enum status {
 model User {
   id           Int        @id @default(autoincrement())
   password     String
-  email        String     @unique
+  email        String?    @unique
   firstName    String
   lastName     String
   profileImage String?
   role         role       @default(USER)
-  mobile       String     @unique @db.VarChar(10)
+  mobile       String?    @unique @db.VarChar(10)
   Product      Product[]
   wishlist     wishlist[]
   requesters   chat[]     @relation("requester")
