@@ -12,3 +12,14 @@ exports.search = async (req, res, next) => {
         next(err);
     }
 };
+
+exports.allProduct = async (req, res, next) => {
+    try {
+        const allpro = await prisma.product.findMany({
+            include: { image: { select: { image: true } } },
+        });
+        res.status(200).json({ allpro });
+    } catch (err) {
+        next(err);
+    }
+};
