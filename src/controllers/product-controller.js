@@ -3,7 +3,6 @@ const prisma = require("../models/prisma");
 const createError = require("../utils/create-error");
 const { upload } = require("../utils/cloudinary-service");
 const { checkProductIdSchema } = require("../validators/product-validator");
-const deleteImage = require("../utils/cloudinary-service");
 
 exports.getProductById = async (req, res, next) => {
     try {
@@ -34,7 +33,20 @@ exports.getProductById = async (req, res, next) => {
         if (!product) {
             return next(createError("Product is not found", 404));
         }
-        res.status(200).json({ product });
+        const data = { userId: req.user.id };
+
+        const wishList = await prisma.wishlist.findFirst({
+            where: {
+                productId: value.productId,
+                userId: data.userId,
+            },
+        });
+        let isWishList = false;
+        if (wishList) {
+            isWishList = true;
+        }
+
+        res.status(200).json({ product, isWishList });
     } catch (err) {
         next(err);
     }
@@ -167,6 +179,48 @@ exports.deleteProduct = async (req, res, next) => {
             },
         });
         res.status(200).json({ message: "deleted" });
+    } catch (err) {
+        next(err);
+    }
+};
+
+exports.wishListProduct = async (req, res, next) => {
+    try {
+        const { value, error } = checkProductIdSchema.validate(req.params);
+        if (error) {
+            return next(error);
+        }
+
+        const data = { userId: req.user.id };
+
+        const alreadyWishList = await prisma.wishlist.findFirst({
+            where: {
+                productId: value.productId,
+                userId: data.userId,
+            },
+        });
+
+        if (alreadyWishList) {
+            await prisma.wishlist.delete({
+                where: {
+                    id: alreadyWishList.id,
+                    userId: data.userId,
+                    productId: value.productId,
+                },
+            });
+            res.status(201).json({ message: "deleted" });
+            return;
+        }
+        if (!alreadyWishList) {
+            await prisma.wishlist.create({
+                data: {
+                    userId: data.userId,
+                    productId: value.productId,
+                },
+            });
+            res.status(201).json({ message: "success" });
+            return;
+        }
     } catch (err) {
         next(err);
     }

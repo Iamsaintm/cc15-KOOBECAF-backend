@@ -21,5 +21,6 @@ router.patch(
     productController.editProduct,
 );
 router.delete("/:productId", authenticateMiddleware, productController.deleteProduct);
+router.post("/wishList/:productId", authenticateMiddleware, productController.wishListProduct);
 
 module.exports = router;
