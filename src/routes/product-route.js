@@ -14,6 +14,12 @@ router.post(
     uploadMiddleware.fields([{ name: "productImage", maxCount: 5 }]),
     productController.createProduct,
 );
+router.patch(
+    "/edit/:productId",
+    authenticateMiddleware,
+    uploadMiddleware.fields([{ name: "productImage", maxCount: 5 }]),
+    productController.editProduct,
+);
 router.delete("/:productId", authenticateMiddleware, productController.deleteProduct);
 
 module.exports = router;
