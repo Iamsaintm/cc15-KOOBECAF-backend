@@ -8,5 +8,6 @@ router.get("/allproduct", authenticateMiddleware, productController.allProduct);
 router.get("/:productId", authenticateMiddleware, productController.getProduct);
 router.get("/search", authenticateMiddleware, productController.search);
 router.delete("/:productId", authenticateMiddleware, productController.deleteProduct);
+router.post("/wishList/:productId", authenticateMiddleware, productController.wishListProduct);
 
 module.exports = router;
