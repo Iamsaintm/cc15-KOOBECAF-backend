@@ -21,6 +21,7 @@ exports.getProductById = async (req, res, next) => {
                         firstName: true,
                         lastName: true,
                         profileImage: true,
+                        coverImage: true,
                     },
                 },
                 image: {
@@ -47,6 +48,41 @@ exports.getProductById = async (req, res, next) => {
         }
 
         res.status(200).json({ product, isWishList });
+    } catch (err) {
+        next(err);
+    }
+};
+
+exports.getProductByCategory = async (req, res, next) => {
+    try {
+        const { categoryId } = req.params;
+
+        const product = await prisma.product.findMany({
+            where: {
+                categoryId: +categoryId,
+            },
+            include: {
+                usersId: {
+                    select: {
+                        firstName: true,
+                        lastName: true,
+                        profileImage: true,
+                        coverImage: true,
+                    },
+                },
+                image: {
+                    select: {
+                        image: true,
+                    },
+                },
+            },
+        });
+
+        if (!product) {
+            return next(createError("Product is not found", 404));
+        }
+
+        res.status(200).json({ product });
     } catch (err) {
         next(err);
     }
