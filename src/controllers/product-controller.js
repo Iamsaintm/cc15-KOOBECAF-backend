@@ -132,7 +132,7 @@ exports.createProduct = async (req, res, next) => {
     } catch (err) {
         next(err);
     } finally {
-        for (const file of req.files.productImage) {
+        for (const file of req.files?.productImage) {
             fs.unlink(file.path, (err) => {
                 if (err) {
                     return next(createError("Can't delete file", 400));
@@ -179,7 +179,6 @@ exports.editProduct = async (req, res, next) => {
         if (error) {
             return next(error);
         }
-
         const existProduct = await prisma.product.findFirst({
             where: {
                 id: value.productId,
@@ -193,7 +192,20 @@ exports.editProduct = async (req, res, next) => {
 
         const data = req.body;
 
-        const updateProduct = await prisma.product.update({
+        if (data.idsToDelete) {
+            idsToDelete = JSON.parse(data.idsToDelete);
+            delete data.idsToDelete;
+
+            await prisma.image.deleteMany({
+                where: {
+                    id: {
+                        in: idsToDelete,
+                    },
+                },
+            });
+        }
+
+        const product = await prisma.product.update({
             data: data,
             where: {
                 id: existProduct.id,
@@ -202,7 +214,7 @@ exports.editProduct = async (req, res, next) => {
 
         if (req.files.productImage) {
             const image = [];
-            for (const file of req.files.productImage) {
+            for (const file of req.files?.productImage) {
                 const productImage = await upload(file.path);
                 image.push(productImage);
             }
@@ -219,11 +231,11 @@ exports.editProduct = async (req, res, next) => {
             });
         }
 
-        res.status(200).json({ message: "edited product", updateProduct });
+        res.status(200).json({ message: "edited product" });
     } catch (err) {
         next(err);
     } finally {
-        for (const file of req.files.productImage) {
+        for (const file of req.files?.productImage) {
             fs.unlink(file.path, (err) => {
                 if (err) {
                     return next(createError("Can't delete file", 400));
