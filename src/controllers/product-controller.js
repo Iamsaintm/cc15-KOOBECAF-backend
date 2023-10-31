@@ -4,25 +4,75 @@ const createError = require("../utils/create-error");
 const { upload } = require("../utils/cloudinary-service");
 const { checkProductIdSchema } = require("../validators/product-validator");
 
-exports.searchProduct = async (req, res, next) => {
+exports.getProductById = async (req, res, next) => {
     try {
-        const { input } = req.body;
+        const { value, error } = checkProductIdSchema.validate(req.params);
 
-        const data = await prisma.product.findMany({});
-
-        const found = data.filter((el) => (el.productName.toLowerCase().includes(input.toLowerCase()) ? el : null));
-        res.status(200).json({ message: "found", found });
+        if (error) {
+            return next(error);
+        }
+        const product = await prisma.product.findFirst({
+            where: {
+                id: +value.productId,
+            },
+            include: {
+                usersId: {
+                    select: {
+                        firstName: true,
+                        lastName: true,
+                        profileImage: true,
+                    },
+                },
+                image: {
+                    select: {
+                        image: true,
+                    },
+                },
+            },
+        });
+        if (!product) {
+            return next(createError("Product is not found", 404));
+        }
+        res.status(200).json({ product });
     } catch (err) {
         next(err);
     }
 };
 
-exports.allProduct = async (req, res, next) => {
+exports.getAllProduct = async (req, res, next) => {
     try {
         const allProduct = await prisma.product.findMany({
             include: { image: { select: { image: true } } },
         });
+
+        if (!allProduct) {
+            return next(createError("Product is not found", 404));
+        }
+
         res.status(200).json({ allProduct });
+    } catch (err) {
+        next(err);
+    }
+};
+
+exports.searchProduct = async (req, res, next) => {
+    try {
+        const { searchName } = req.body;
+
+        if (!searchName) {
+            return next(createError("Product is require", 400));
+        }
+
+        const data = await prisma.product.findMany({});
+
+        if (!data) {
+            return next(createError("Product is not found", 404));
+        }
+
+        const product = data.filter((el) =>
+            el.productName.toLowerCase().includes(searchName.toLowerCase()) ? el : null,
+        );
+        res.status(200).json({ product });
     } catch (err) {
         next(err);
     }
@@ -32,7 +82,7 @@ exports.createProduct = async (req, res, next) => {
     try {
         const data = req.body;
         if (!data) {
-            return next(createError("Room is required", 400));
+            return next(createError("Product is required", 400));
         }
 
         if (!req.files.productImage) {
@@ -91,39 +141,6 @@ exports.createProduct = async (req, res, next) => {
     }
 };
 
-exports.getProduct = async (req, res, next) => {
-    try {
-        const { value, error } = checkProductIdSchema.validate(req.params);
-        if (error) {
-            return next(error);
-        }
-        const getProduct = await prisma.product.findFirst({
-            where: {
-                id: value.productId,
-            },
-            include: {
-                usersId: {
-                    select: {
-                        firstName: true,
-                        lastName: true,
-                        profileImage: true,
-                    },
-                },
-                image: {
-                    select: {
-                        image: true,
-                    },
-                },
-            },
-        });
-        if (!getProduct) {
-            return next(createError("invalid productId", 400));
-        }
-        res.status(200).json({ getProduct });
-    } catch (err) {
-        next(err);
-    }
-};
 exports.deleteProduct = async (req, res, next) => {
     try {
         const { value, error } = checkProductIdSchema.validate(req.params);
@@ -140,7 +157,7 @@ exports.deleteProduct = async (req, res, next) => {
         });
 
         if (!existProduct) {
-            return next(createError("cannot delete this product", 400));
+            return next(createError("Product is not found", 404));
         }
         await prisma.product.delete({
             where: {

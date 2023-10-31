@@ -4,6 +4,6 @@ const categoryController = require("../controllers/category-controller");
 
 const router = express.Router();
 router.get("/allCategory", authenticateMiddleware, categoryController.allCategories);
-router.get("/:catId", authenticateMiddleware, categoryController.categories);
+router.get("/:categoryId", authenticateMiddleware, categoryController.categories);
 
 module.exports = router;
