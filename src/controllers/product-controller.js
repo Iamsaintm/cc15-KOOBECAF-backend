@@ -8,7 +8,15 @@ exports.searchProduct = async (req, res, next) => {
     try {
         const { input } = req.body;
 
+        if (!input) {
+            return next(createError("Product is require", 400));
+        }
+
         const data = await prisma.product.findMany({});
+
+        if (!data) {
+            return next(createError("Product is not found", 404));
+        }
 
         const found = data.filter((el) => (el.productName.toLowerCase().includes(input.toLowerCase()) ? el : null));
         res.status(200).json({ message: "found", found });
@@ -22,6 +30,11 @@ exports.allProduct = async (req, res, next) => {
         const allProduct = await prisma.product.findMany({
             include: { image: { select: { image: true } } },
         });
+
+        if (!allProduct) {
+            return next(createError("Product is not found", 404));
+        }
+
         res.status(200).json({ allProduct });
     } catch (err) {
         next(err);
@@ -32,7 +45,7 @@ exports.createProduct = async (req, res, next) => {
     try {
         const data = req.body;
         if (!data) {
-            return next(createError("Room is required", 400));
+            return next(createError("Product is required", 400));
         }
 
         if (!req.files.productImage) {
@@ -117,7 +130,7 @@ exports.getProduct = async (req, res, next) => {
             },
         });
         if (!getProduct) {
-            return next(createError("invalid productId", 400));
+            return next(createError("Product is not found", 404));
         }
         res.status(200).json({ getProduct });
     } catch (err) {
@@ -140,7 +153,7 @@ exports.deleteProduct = async (req, res, next) => {
         });
 
         if (!existProduct) {
-            return next(createError("cannot delete this product", 400));
+            return next(createError("Product is not found", 404));
         }
         await prisma.product.delete({
             where: {

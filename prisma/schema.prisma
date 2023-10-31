@@ -39,7 +39,7 @@ enum vehicleType {
 enum status {
   AVAILABLE
   SOLD
-  CANCEL
+  NOT_AVAILABLE
 }
 
 model User {
@@ -49,6 +49,7 @@ model User {
   firstName    String
   lastName     String
   profileImage String?
+  coverImage   String?
   role         role       @default(USER)
   mobile       String?    @unique @db.VarChar(10)
   Product      Product[]

@@ -2,10 +2,15 @@ const prisma = require("../models/prisma");
 
 exports.categories = async (req, res, next) => {
     try {
-        const { catId } = req.params;
+        const { value, error } = checkProductIdSchema.validate(req.params);
+
+        if (error) {
+            return next(error);
+        }
+
         const categories = await prisma.product.findMany({
             where: {
-                categoryId: +catId,
+                categoryId: +value,
             },
             include: {
                 image: {
@@ -15,6 +20,11 @@ exports.categories = async (req, res, next) => {
                 },
             },
         });
+
+        if (!categories) {
+            return next(createError("Category is not found", 404));
+        }
+
         res.status(200).json({ categories });
     } catch (err) {
         next(err);
@@ -23,8 +33,13 @@ exports.categories = async (req, res, next) => {
 
 exports.allCategories = async (req, res, next) => {
     try {
-        const allcat = await prisma.category.findMany({});
-        res.status(200).json({ allcat });
+        const allCategory = await prisma.category.findMany({});
+
+        if (!allCategory) {
+            return next(createError("Category is not found", 404));
+        }
+
+        res.status(200).json({ allCategory });
     } catch (err) {
         next(err);
     }
