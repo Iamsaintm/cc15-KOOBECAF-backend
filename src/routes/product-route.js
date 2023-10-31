@@ -5,15 +5,15 @@ const uploadMiddleware = require("../middlewares/upload");
 
 const router = express.Router();
 
-router.get("/allProduct", authenticateMiddleware, productController.allProduct);
+router.get("/allProduct", authenticateMiddleware, productController.getAllProduct);
 router.get("/search", authenticateMiddleware, productController.searchProduct);
-router.get("/:productId", authenticateMiddleware, productController.getProduct);
-router.delete("/:productId", authenticateMiddleware, productController.deleteProduct);
+router.get("/:productId", authenticateMiddleware, productController.getProductById);
 router.post(
     "/create",
     authenticateMiddleware,
     uploadMiddleware.fields([{ name: "productImage", maxCount: 5 }]),
     productController.createProduct,
 );
+router.delete("/:productId", authenticateMiddleware, productController.deleteProduct);
 
 module.exports = router;
