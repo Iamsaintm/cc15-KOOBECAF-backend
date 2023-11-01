@@ -1,6 +1,8 @@
 const { upload } = require("../utils/cloudinary-service");
 const prisma = require("../models/prisma");
 const fs = require("fs/promises");
+const { checkUserIdSchema } = require("../validators/user-validator");
+const createError = require("../utils/create-error");
 
 exports.updateProfile = async (req, res, next) => {
     try {
@@ -53,5 +55,31 @@ exports.updateProfile = async (req, res, next) => {
         if (req.files?.coverImage) {
             fs.unlink(req.files.coverImage[0].path);
         }
+    }
+};
+
+exports.getProfileByUserId = async (req, res, next) => {
+    try {
+        const { value, error } = checkUserIdSchema.validate(req.params);
+
+        if (error) {
+            return next(error);
+        }
+
+        const profile = await prisma.user.findFirst({
+            where: {
+                id: +value.userId,
+            },
+        });
+
+        if (!profile) {
+            return next(createError("Profile is not found", 404));
+        }
+
+        delete profile.password;
+
+        res.status(200).json({ profile });
+    } catch (err) {
+        next(err);
     }
 };
