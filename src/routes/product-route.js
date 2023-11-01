@@ -8,6 +8,7 @@ const router = express.Router();
 router.get("/allProduct", authenticateMiddleware, productController.getAllProduct);
 router.get("/search", authenticateMiddleware, productController.searchProduct);
 router.get("/category/:categoryId", authenticateMiddleware, productController.getProductByCategory);
+router.get("/selling", authenticateMiddleware, productController.getProductByUserId);
 router.get("/:productId", authenticateMiddleware, productController.getProductById);
 router.post(
     "/create",

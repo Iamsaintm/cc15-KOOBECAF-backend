@@ -88,6 +88,26 @@ exports.getProductByCategory = async (req, res, next) => {
     }
 };
 
+exports.getProductByUserId = async (req, res, next) => {
+    try {
+        const data = { userId: req.user.id };
+        const product = await prisma.product.findMany({
+            where: {
+                userId: data.userId,
+            },
+            include: {
+                image: {
+                    select: { image: true },
+                },
+            },
+        });
+
+        res.status(200).json({ product });
+    } catch (err) {
+        next(err);
+    }
+};
+
 exports.getAllProduct = async (req, res, next) => {
     try {
         const allProduct = await prisma.product.findMany({
