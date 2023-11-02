@@ -171,7 +171,7 @@ exports.createProduct = async (req, res, next) => {
                 description: data.description,
                 latitude: +data.latitude,
                 longitude: +data.longitude,
-                userId: +data.userId,
+                userId: req.user.id,
                 categoryId: +data.categoryId,
                 vehicleType: data.vehicleType,
                 vehicleBrand: data.vehicleBrand,
