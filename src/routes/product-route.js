@@ -9,6 +9,7 @@ router.get("/allProduct", authenticateMiddleware, productController.getAllProduc
 router.get("/search", authenticateMiddleware, productController.searchProduct);
 router.get("/category/:categoryId", authenticateMiddleware, productController.getProductByCategory);
 router.get("/search/:userId", authenticateMiddleware, productController.getProductByUserId);
+router.get("/wishlist", authenticateMiddleware, productController.getWishlistByUserId);
 router.get("/:productId", authenticateMiddleware, productController.getProductById);
 router.post(
     "/create",

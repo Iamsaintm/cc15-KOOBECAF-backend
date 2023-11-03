@@ -354,3 +354,16 @@ exports.editProduct = async (req, res, next) => {
         }
     }
 };
+
+exports.getWishlistByUserId = async (req, res, next) => {
+    try {
+        const wishlistProduct = await prisma.wishlist.findMany({
+            where: {
+                userId: req.user.id,
+            },
+        });
+        res.status(200).json({ message: "founded wishlist product", wishlistProduct });
+    } catch (err) {
+        next(err);
+    }
+};
