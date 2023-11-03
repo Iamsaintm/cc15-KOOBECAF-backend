@@ -90,10 +90,10 @@ exports.getProductByCategory = async (req, res, next) => {
 
 exports.getProductByUserId = async (req, res, next) => {
     try {
-        const data = { userId: req.user.id };
+        const { userId } = req.params;
         const product = await prisma.product.findMany({
             where: {
-                userId: data.userId,
+                userId: +userId,
             },
             include: {
                 image: {
