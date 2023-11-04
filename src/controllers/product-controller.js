@@ -373,7 +373,19 @@ exports.getWishlistByUserId = async (req, res, next) => {
             where: {
                 userId: req.user.id,
             },
+            include: {
+                productsId: {
+                    include: {
+                        image: {
+                            select: {
+                                image: true,
+                            },
+                        },
+                    },
+                },
+            },
         });
+
         res.status(200).json({ message: "founded wishlist product", wishlistProduct });
     } catch (err) {
         next(err);
