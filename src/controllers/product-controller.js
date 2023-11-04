@@ -149,12 +149,13 @@ exports.searchProduct = async (req, res, next) => {
 
 exports.createProduct = async (req, res, next) => {
     try {
-        const data = req.body;
+        const data = JSON.parse(req.body.product);
+
         if (!data) {
             return next(createError("Product is required", 400));
         }
 
-        if (!req.files.productImage) {
+        if (!req.files.productImage && req.files.productImage.length === 0) {
             return next(createError("Product image is required", 400));
         }
 
@@ -164,7 +165,7 @@ exports.createProduct = async (req, res, next) => {
             uploadedImages.push(productImage);
         }
 
-        const product = await prisma.product.create({
+        const products = await prisma.product.create({
             data: {
                 productName: data.productName,
                 productPrice: data.productPrice,
@@ -188,15 +189,26 @@ exports.createProduct = async (req, res, next) => {
         const imageData = uploadedImages.map((file) => {
             return {
                 image: file,
-                productId: product.id,
+                productId: products.id,
             };
         });
 
-        const images = await prisma.image.createMany({
+        await prisma.image.createMany({
             data: imageData,
         });
 
-        res.status(200).json({ product, images });
+        const product = await prisma.product.findMany({
+            where: {
+                userId: req.user.id,
+            },
+            include: {
+                image: {
+                    select: { image: true },
+                },
+            },
+        });
+
+        res.status(201).json({ product });
     } catch (err) {
         next(err);
     } finally {
