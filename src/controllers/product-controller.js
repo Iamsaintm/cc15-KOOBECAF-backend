@@ -111,7 +111,17 @@ exports.getProductByUserId = async (req, res, next) => {
 exports.getAllProduct = async (req, res, next) => {
     try {
         const allProduct = await prisma.product.findMany({
-            include: { image: { select: { image: true } } },
+            include: {
+                usersId: {
+                    select: {
+                        firstName: true,
+                        lastName: true,
+                        profileImage: true,
+                        coverImage: true,
+                    },
+                },
+                image: { select: { image: true } },
+            },
         });
 
         if (!allProduct) {
