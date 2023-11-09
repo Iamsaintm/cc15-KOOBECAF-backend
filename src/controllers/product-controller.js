@@ -24,11 +24,7 @@ exports.getProductById = async (req, res, next) => {
                         coverImage: true,
                     },
                 },
-                image: {
-                    select: {
-                        image: true,
-                    },
-                },
+                image: true,
             },
         });
         if (!product) {
@@ -70,11 +66,7 @@ exports.getProductByCategory = async (req, res, next) => {
                         coverImage: true,
                     },
                 },
-                image: {
-                    select: {
-                        image: true,
-                    },
-                },
+                image: true,
             },
         });
 
@@ -96,9 +88,7 @@ exports.getProductByUserId = async (req, res, next) => {
                 userId: +userId,
             },
             include: {
-                image: {
-                    select: { image: true },
-                },
+                image: true,
             },
         });
 
@@ -142,7 +132,7 @@ exports.searchProduct = async (req, res, next) => {
             return next(createError("Product is require", 400));
         }
 
-        const data = await prisma.product.findMany({});
+        const data = await prisma.product.findMany({ include: { image: true } });
 
         if (!data) {
             return next(createError("Product is not found", 404));
@@ -211,23 +201,21 @@ exports.createProduct = async (req, res, next) => {
             where: {
                 userId: req.user.id,
             },
-            include: {
-                image: {
-                    select: { image: true },
-                },
-            },
+            include: { image: true },
         });
 
         res.status(201).json({ product });
     } catch (err) {
         next(err);
     } finally {
-        for (const file of req.files?.productImage) {
-            fs.unlink(file.path, (err) => {
-                if (err) {
-                    return next(createError("Can't delete file", 400));
-                }
-            });
+        if (req.files.productImage) {
+            for (const file of req.files?.productImage) {
+                fs.unlink(file.path, (err) => {
+                    if (err) {
+                        return next(createError("Can't delete file", 400));
+                    }
+                });
+            }
         }
     }
 };
@@ -307,7 +295,6 @@ exports.wishListProduct = async (req, res, next) => {
 exports.editProduct = async (req, res, next) => {
     try {
         const { value, error } = checkProductIdSchema.validate(req.params);
-
         if (error) {
             return next(error);
         }
@@ -322,19 +309,43 @@ exports.editProduct = async (req, res, next) => {
             return next(createError("Product is not found", 400));
         }
 
-        const data = req.body;
-
+        const data = JSON.parse(req.body.product);
+        if (data.id) {
+            data.categorysId = {
+                connect: {
+                    id: data.categoryId,
+                },
+            };
+            data.usersId = {
+                connect: {
+                    id: data.userId,
+                },
+            };
+            delete data.userId;
+            delete data.image;
+            delete data.typeOfCategory;
+            delete data.categoryId;
+            delete data.productImage;
+            delete data.id;
+        }
+        if (data.vehicleYears) {
+            data.vehicleYears = +data.vehicleYears;
+        }
+        if (data.bedroomQuantity) {
+            data.bedroomQuantity = +data.bedroomQuantity;
+        }
+        if (data.bathroomQuantity) {
+            data.bathroomQuantity = +data.bathroomQuantity;
+        }
         if (data.idsToDelete) {
-            idsToDelete = JSON.parse(data.idsToDelete);
-            delete data.idsToDelete;
-
             await prisma.image.deleteMany({
                 where: {
                     id: {
-                        in: idsToDelete,
+                        in: data.idsToDelete,
                     },
                 },
             });
+            delete data.idsToDelete;
         }
 
         const product = await prisma.product.update({
@@ -367,12 +378,14 @@ exports.editProduct = async (req, res, next) => {
     } catch (err) {
         next(err);
     } finally {
-        for (const file of req.files?.productImage) {
-            fs.unlink(file.path, (err) => {
-                if (err) {
-                    return next(createError("Can't delete file", 400));
-                }
-            });
+        if (req.files.productImage) {
+            for (const file of req.files?.productImage) {
+                fs.unlink(file.path, (err) => {
+                    if (err) {
+                        return next(createError("Can't delete file", 400));
+                    }
+                });
+            }
         }
     }
 };
