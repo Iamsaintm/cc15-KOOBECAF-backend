@@ -391,6 +391,14 @@ exports.getWishlistByUserId = async (req, res, next) => {
                                 image: true,
                             },
                         },
+                        usersId: {
+                            select: {
+                                firstName: true,
+                                lastName: true,
+                                profileImage: true,
+                                coverImage: true,
+                            },
+                        },
                     },
                 },
             },
