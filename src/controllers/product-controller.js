@@ -101,7 +101,17 @@ exports.getProductByUserId = async (req, res, next) => {
 exports.getAllProduct = async (req, res, next) => {
     try {
         const allProduct = await prisma.product.findMany({
-            include: { image: true },
+            include: {
+                image: true,
+                usersId: {
+                    select: {
+                        firstName: true,
+                        lastName: true,
+                        profileImage: true,
+                        coverImage: true,
+                    },
+                },
+            },
         });
 
         if (!allProduct) {
@@ -389,11 +399,15 @@ exports.getWishlistByUserId = async (req, res, next) => {
             include: {
                 productsId: {
                     include: {
-                        image: {
-                            select: {
-                                image: true,
-                            },
-                        },
+                        image: true,
+                    },
+                },
+                usersId: {
+                    select: {
+                        firstName: true,
+                        lastName: true,
+                        profileImage: true,
+                        coverImage: true,
                     },
                 },
             },
