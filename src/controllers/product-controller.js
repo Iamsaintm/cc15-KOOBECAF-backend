@@ -337,7 +337,7 @@ exports.editProduct = async (req, res, next) => {
         if (data.bathroomQuantity) {
             data.bathroomQuantity = +data.bathroomQuantity;
         }
-        if (data.idsToDelete) {
+        if (data.idsToDelete && data.idsToDelete.length !== 0) {
             await prisma.image.deleteMany({
                 where: {
                     id: {
@@ -400,14 +400,14 @@ exports.getWishlistByUserId = async (req, res, next) => {
                 productsId: {
                     include: {
                         image: true,
-                    },
-                },
-                usersId: {
-                    select: {
-                        firstName: true,
-                        lastName: true,
-                        profileImage: true,
-                        coverImage: true,
+                        usersId: {
+                            select: {
+                                firstName: true,
+                                lastName: true,
+                                profileImage: true,
+                                coverImage: true,
+                            },
+                        },
                     },
                 },
             },
