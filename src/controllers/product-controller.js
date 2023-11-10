@@ -434,7 +434,7 @@ exports.updateProductStatus = async (req, res, next) => {
                 id: value.productId,
             },
         });
-        res.status(200).send({ message: "Updating success.", status: data.status });
+        res.status(200).send({ message: "Updating success.", status: data.status, userId: data.userId });
     } catch (err) {
         next(err);
     }
