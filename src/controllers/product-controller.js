@@ -418,3 +418,24 @@ exports.getWishlistByUserId = async (req, res, next) => {
         next(err);
     }
 };
+
+exports.updateProductStatus = async (req, res, next) => {
+    try {
+        const { value, error } = checkProductIdSchema.validate(req.params);
+        if (error) {
+            return next(error);
+        }
+        const { status } = req.body;
+        const data = await prisma.product.update({
+            data: {
+                status,
+            },
+            where: {
+                id: value.productId,
+            },
+        });
+        res.status(200).send({ message: "Updating success.", status: data.status });
+    } catch (err) {
+        next(err);
+    }
+};
