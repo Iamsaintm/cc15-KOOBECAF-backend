@@ -43,19 +43,22 @@ enum status {
 }
 
 model User {
-  id           Int        @id @default(autoincrement())
-  password     String
-  email        String?    @unique
-  firstName    String
-  lastName     String
-  profileImage String?
-  coverImage   String?
-  role         role       @default(USER)
-  mobile       String?    @unique @db.VarChar(10)
-  Product      Product[]
-  wishlist     wishlist[]
-  requesters   chat[]     @relation("requester")
-  receivers    chat[]     @relation("receiver")
+  id             Int        @id @default(autoincrement())
+  password       String
+  email          String?    @unique
+  firstName      String
+  lastName       String
+  profileImage   String?
+  coverImage     String?
+  isSubscribe    Boolean    @default(false)
+  startSubscribe DateTime?
+  endSubscribe   DateTime?
+  role           role       @default(USER)
+  mobile         String?    @unique @db.VarChar(10)
+  Product        Product[]
+  wishlist       wishlist[]
+  requesters     chat[]     @relation("requester")
+  receivers      chat[]     @relation("receiver")
 }
 
 model Product {
@@ -77,6 +80,7 @@ model Product {
   createdAt        DateTime      @default(now())
   status           status        @default(AVAILABLE)
   sellDate         DateTime?
+  point            Int           @default(0)
   userId           Int
   usersId          User          @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   categoryId       Int
