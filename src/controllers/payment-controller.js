@@ -10,6 +10,7 @@ exports.payment = async (req, res, next) => {
             lookup_keys: [lookup_key],
             expand: ["data.product"],
         });
+
         const session = await stripe.checkout.sessions.create({
             billing_address_collection: "auto",
             line_items: [
@@ -22,7 +23,6 @@ exports.payment = async (req, res, next) => {
             success_url: `${DOMAIN}/paymentSuccessful?success=true&transactionId={CHECKOUT_SESSION_ID}`,
             cancel_url: `${DOMAIN}/paymentFailed?canceled=true`,
         });
-
         res.status(200).json({ url: session.url });
     } catch (err) {
         next(err);
@@ -60,9 +60,9 @@ exports.createSubscribe = async (req, res, next) => {
             },
         });
 
-        await prisma.product.update({
+        await prisma.product.updateMany({
             where: {
-                id: +req.user.id,
+                userId: +req.user.id,
             },
             data: {
                 point: 5,

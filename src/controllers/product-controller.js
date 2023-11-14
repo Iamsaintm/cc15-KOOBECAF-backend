@@ -57,6 +57,9 @@ exports.getProductByCategory = async (req, res, next) => {
             where: {
                 categoryId: +categoryId,
             },
+            orderBy: {
+                point: "desc",
+            },
             include: {
                 usersId: {
                     select: {
@@ -101,6 +104,9 @@ exports.getProductByUserId = async (req, res, next) => {
 exports.getAllProduct = async (req, res, next) => {
     try {
         const allProduct = await prisma.product.findMany({
+            orderBy: {
+                point: "desc",
+            },
             include: {
                 image: true,
                 usersId: {
@@ -132,7 +138,12 @@ exports.searchProduct = async (req, res, next) => {
             return next(createError("Product is require", 400));
         }
 
-        const data = await prisma.product.findMany({ include: { image: true } });
+        const data = await prisma.product.findMany({
+            orderBy: {
+                point: "desc",
+            },
+            include: { image: true },
+        });
 
         if (!data) {
             return next(createError("Product is not found", 404));
@@ -165,6 +176,13 @@ exports.createProduct = async (req, res, next) => {
             uploadedImages.push(productImage);
         }
 
+        const subscriber = await prisma.user.findUnique({
+            where: {
+                isSubscribe: true,
+                id: req.user.id,
+            },
+        });
+
         const products = await prisma.product.create({
             data: {
                 productName: data.productName,
@@ -185,6 +203,17 @@ exports.createProduct = async (req, res, next) => {
                 homeAddress: data.homeAddress,
             },
         });
+
+        if (subscriber) {
+            await prisma.product.update({
+                where: {
+                    id: products.id,
+                },
+                data: {
+                    point: 5,
+                },
+            });
+        }
 
         const imageData = uploadedImages.map((file) => {
             return {
@@ -451,6 +480,9 @@ exports.getProductByPage = async (req, res, next) => {
             take: 12,
             where: {
                 status: "AVAILABLE",
+            },
+            orderBy: {
+                point: "desc",
             },
             include: {
                 image: true,
