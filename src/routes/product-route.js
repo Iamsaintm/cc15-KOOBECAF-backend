@@ -6,6 +6,7 @@ const uploadMiddleware = require("../middlewares/upload");
 const router = express.Router();
 
 router.get("/allProduct", authenticateMiddleware, productController.getAllProduct);
+router.get("/page", authenticateMiddleware, productController.getProductByPage);
 router.get("/search", authenticateMiddleware, productController.searchProduct);
 router.get("/category/:categoryId", authenticateMiddleware, productController.getProductByCategory);
 router.get("/search/:userId", authenticateMiddleware, productController.getProductByUserId);
