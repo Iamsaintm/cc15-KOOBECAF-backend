@@ -368,6 +368,7 @@ exports.editProduct = async (req, res, next) => {
         if (data.bathroomQuantity) {
             data.bathroomQuantity = +data.bathroomQuantity;
         }
+
         if (data.idsToDelete && data.idsToDelete.length !== 0) {
             await prisma.image.deleteMany({
                 where: {
@@ -376,6 +377,8 @@ exports.editProduct = async (req, res, next) => {
                     },
                 },
             });
+            delete data.idsToDelete;
+        } else {
             delete data.idsToDelete;
         }
 
@@ -466,6 +469,38 @@ exports.updateProductStatus = async (req, res, next) => {
             },
         });
         res.status(200).send({ message: "Updating success.", status: data.status, userId: data.userId });
+    } catch (err) {
+        next(err);
+    }
+};
+
+exports.getProductByPage = async (req, res, next) => {
+    try {
+        const { _page } = req.query;
+        const targetProduct = await prisma.product.findMany({
+            skip: (+_page - 1) * 12,
+            take: 12,
+            where: {
+                status: "AVAILABLE",
+            },
+            include: {
+                image: true,
+                usersId: {
+                    select: {
+                        firstName: true,
+                        lastName: true,
+                        profileImage: true,
+                        coverImage: true,
+                    },
+                },
+            },
+        });
+
+        if (!targetProduct) {
+            return next(createError("Product is not found", 404));
+        }
+
+        res.status(200).json({ page: _page, targetProduct });
     } catch (err) {
         next(err);
     }
