@@ -465,8 +465,6 @@ exports.getProductByPage = async (req, res, next) => {
             },
         });
 
-        console.log(targetProduct);
-
         if (!targetProduct) {
             return next(createError("Product is not found", 404));
         }
