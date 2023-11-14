@@ -12,7 +12,7 @@ exports.updateProfile = async (req, res, next) => {
 
         if (data) {
             await prisma.user.update({
-                data: data,
+                data: { firstName: data.firstName, lastName: data.lastName },
                 where: {
                     id: req.user.id,
                 },
