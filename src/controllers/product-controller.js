@@ -386,11 +386,7 @@ exports.getWishlistByUserId = async (req, res, next) => {
             include: {
                 productsId: {
                     include: {
-                        image: {
-                            select: {
-                                image: true,
-                            },
-                        },
+                        image: true,
                         usersId: {
                             select: {
                                 firstName: true,

@@ -11,6 +11,7 @@ const authRoute = require("./routes/auth-route");
 const userRoute = require("./routes/user-route");
 const categoryRoute = require("./routes/category-route");
 const productRoute = require("./routes/product-route");
+const chatRoute = require("./routes/chat-route");
 
 const app = express();
 const server = http.createServer(app);
@@ -25,6 +26,7 @@ app.use("/auth", authRoute);
 app.use("/user", userRoute);
 app.use("/category", categoryRoute);
 app.use("/product", productRoute);
+app.use("/inbox", chatRoute);
 
 app.use(notFoundMiddleware);
 app.use(errorMiddleware);
