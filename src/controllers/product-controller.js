@@ -483,6 +483,9 @@ exports.getProductByPage = async (req, res, next) => {
             where: {
                 status: "AVAILABLE",
             },
+            orderBy: {
+                point: "desc",
+            },
             include: {
                 image: true,
                 usersId: {
