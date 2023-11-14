@@ -1,7 +1,7 @@
 const prisma = require("../models/prisma");
 const createError = require("../utils/create-error");
 const stripe = require("stripe")(process.env.STRIPE_API_KEY);
-const YOUR_DOMAIN = process.env.YOUR_DOMAIN;
+const DOMAIN = process.env.DOMAIN;
 
 exports.payment = async (req, res, next) => {
     try {
@@ -10,7 +10,6 @@ exports.payment = async (req, res, next) => {
             lookup_keys: [lookup_key],
             expand: ["data.product"],
         });
-
         const session = await stripe.checkout.sessions.create({
             billing_address_collection: "auto",
             line_items: [
@@ -19,9 +18,9 @@ exports.payment = async (req, res, next) => {
                     quantity: 1,
                 },
             ],
-            mode: "payment",
-            success_url: `${YOUR_DOMAIN}/?success=true&session_id={CHECKOUT_SESSION_ID}`,
-            cancel_url: `${YOUR_DOMAIN}?canceled=true`,
+            mode: "subscription",
+            success_url: `${DOMAIN}/paymentSuccessful?success=true&transactionId={CHECKOUT_SESSION_ID}`,
+            cancel_url: `${DOMAIN}/paymentFailed?canceled=true`,
         });
 
         res.status(200).json({ url: session.url });
@@ -40,10 +39,15 @@ exports.createSubscribe = async (req, res, next) => {
             return next(createError("Error"), 400);
         }
 
+        const price = session.amount_total / 100;
         let currentDate = new Date();
         let startSubscribe = currentDate;
         let endSubscribe = new Date(currentDate);
-        endDate.setMonth(currentDate.getMonth() + 1);
+        if (price === 159) {
+            endSubscribe.setMonth(currentDate.getMonth() + 1);
+        } else {
+            endSubscribe.setMonth(currentDate.getMonth() + 12);
+        }
 
         await prisma.user.update({
             where: {
