@@ -215,8 +215,6 @@ exports.createProduct = async (req, res, next) => {
             });
         }
 
-        console.log(subscriber);
-
         const imageData = uploadedImages.map((file) => {
             return {
                 image: file,
