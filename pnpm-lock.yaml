@@ -38,6 +38,9 @@ dependencies:
   socket.io:
     specifier: ^4.7.2
     version: 4.7.2
+  stripe:
+    specifier: ^14.4.0
+    version: 14.4.0
 
 devDependencies:
   morgan:
@@ -890,6 +893,14 @@ packages:
     resolution: {integrity: sha512-n/ShnvDi6FHbbVfviro+WojiFzv+s8MPMHBczVePfUpDJLwoLT0ht1l4YwBCbi8pJAveEEdnkHyPyTP/mzRfwg==}
     dependencies:
       safe-buffer: 5.1.2
+    dev: false
+
+  /stripe@14.4.0:
+    resolution: {integrity: sha512-E3IxDo/Bvu0TtYrKfAf8lEYd0beTjFSN4xemuw2oEfUyxFpJyrzRZOw50HIEXFYYHWNDORicd8G8R4joCbN3/Q==}
+    engines: {node: '>=12.*'}
+    dependencies:
+      '@types/node': 20.8.10
+      qs: 6.11.0
     dev: false
 
   /toidentifier@1.0.1:
