@@ -1,5 +1,4 @@
 const prisma = require("../models/prisma");
-const createError = require("../utils/create-error");
 
 exports.addMessage = async (req, res, next) => {
     try {
@@ -17,120 +16,68 @@ exports.addMessage = async (req, res, next) => {
     }
 };
 
-// exports.getChatMessage = async (req, res, next) => {
-//     try {
-//         await prisma.chat.findMany({
-//             where: {
-//                 req,
-//             },
-//         });
-//     } catch (err) {
-//         next(err);
-//     }
-// };
-
 exports.getAllChatByUserId = async (req, res, next) => {
     try {
-        const id = req.user.id;
-        const { otherId } = req.body;
-        const userChat = await prisma.chat.findMany({
+        const { productId, receiverId } = req.params;
+        const message = await prisma.chat.findMany({
             where: {
                 OR: [
-                    { receiverId: id, requesterId: otherId },
-                    { receiverId: otherId, requesterId: id },
+                    { receiverId: +receiverId, requesterId: req.user.id },
+                    { receiverId: req.user.id, requesterId: +receiverId },
                 ],
+                productId: +productId,
             },
-            order: [["createdAt", "DESC"]],
-            include: [
-                {
-                    model: user,
-                    attributes: { exclude: "password" },
-                    as: "myreceiverId",
-                },
-                {
-                    model: User,
-
-                    attributes: { exclude: "password" },
-                    as: "myrequestId",
-                },
-            ],
+            include: {
+                receiver: true,
+                requester: true,
+            },
         });
-        res.status(200).json({ userChat });
+
+        res.status(200).json({ message });
     } catch (err) {
         console.log(err);
         next(err);
     }
 };
 
-exports.getInboxMessage = async (req, res, next) => {
+exports.getInboxBuy = async (req, res, next) => {
     try {
-        const allProduct = await prisma.product.findMany({
-            where: {
-                userId: req.user.id,
-            },
-        });
-        const objProducts = {};
-        allProduct.forEach((el) => {
-            objProducts[el.id] = el;
-        });
-
         const mess = await prisma.chat.findMany({
             where: {
                 OR: [{ receiverId: req.user.id }, { requesterId: req.user.id }],
             },
-        });
-        const uniqueObj = {};
-        const requesterArr = mess
-            .filter((item, index) => item.requesterId !== req.user.id)
-            .map((el) => ({ userId: el.requesterId, productId: el.productId }));
-        const receiverArr = mess
-            .filter((item, index) => item.receiverId !== req.user.id)
-            .map((el) => ({ userId: el.receiverId, productId: el.productId }));
-
-        [...requesterArr, ...receiverArr].forEach((item, index) => {
-            if (!uniqueObj[item.userId]) uniqueObj[item.userId] = {};
-            uniqueObj[item.userId][item.productId] = objProducts[item.productId];
-        });
-        const allUser = await Promise.all(
-            Object.keys(uniqueObj).map((el) =>
-                prisma.user.findFirst({
-                    where: { id: +el },
-                }),
-            ),
-        );
-
-        const objUsers = {};
-        allUser.forEach((el) => {
-            objUsers[el.id] = el;
-        });
-        const responseObj = [];
-
-        for (let [key, value] of Object.entries(uniqueObj)) {
-            for (let product of Object.values(value)) {
-                responseObj.push({ product, user: objUsers[key] });
-            }
-        }
-        res.status(200).json(responseObj);
-    } catch (err) {
-        next(err);
-    }
-};
-
-exports.createRoom = async (req, res, next) => {
-    try {
-        const data = req.body;
-
-        // await prisma.chatroom.findMany({
-        //     where
-        // })
-        await prisma.chat.create({
-            data: {
-                message: data.text,
-                requesterId: data.senderId,
-                receiverId: data.receiverId,
-                productId: data.productId,
+            include: {
+                productsId: {
+                    include: {
+                        image: true,
+                    },
+                },
             },
         });
+
+        const chatRoomsMap = new Map();
+
+        for (const chat of mess) {
+            const productId = chat.productId;
+
+            const otherUserId = chat.receiverId === req.user.id ? chat.requesterId : chat.receiverId;
+
+            const key = `${req.user.id}_${otherUserId}_${productId}`;
+
+            const buyer = await prisma.user.findFirst({
+                where: { id: otherUserId },
+            });
+
+            chatRoomsMap.set(key, {
+                seller: req.user.id,
+                buyer,
+                product: chat.productsId,
+            });
+        }
+
+        const getInbox = Array.from(chatRoomsMap.values());
+
+        res.status(200).json({ getInbox });
     } catch (err) {
         next(err);
     }
