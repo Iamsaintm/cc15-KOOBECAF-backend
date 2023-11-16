@@ -83,3 +83,18 @@ exports.getProfileByUserId = async (req, res, next) => {
         next(err);
     }
 };
+
+exports.unSubscribe = async (req, res, next) => {
+    try {
+        await prisma.user.update({
+            data: { isSubscribe: false },
+            where: {
+                id: req.user.id,
+            },
+        });
+
+        res.status(200).json({ message: "Unsubscribe success" });
+    } catch (err) {
+        next(err);
+    }
+};

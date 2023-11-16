@@ -5,6 +5,8 @@ const uploadMiddleware = require("../middlewares/upload");
 
 const router = express.Router();
 
+router.patch("/unSubscribe", authenticateMiddleware, userController.unSubscribe);
+
 router.get("/:userId", authenticateMiddleware, userController.getProfileByUserId);
 
 router.patch(
