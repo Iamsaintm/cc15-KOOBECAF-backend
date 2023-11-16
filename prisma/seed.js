@@ -1,18 +1,3 @@
-Legion
-chaosregion
-Invisible
-
-Legion — 11/14/2023 5:20 PM
-const bcrypt = require("bcryptjs");
-const prisma = require("../src/models/prisma");
-
-const hashPassword = bcrypt.hashSync("12345678", 10);
-
-const user = [
-Expand
-message.txt
-31 KB
-﻿
 const bcrypt = require("bcryptjs");
 const prisma = require("../src/models/prisma");
 
@@ -960,5 +945,3 @@ seedDatabase()
     .finally(() => {
         prisma.$disconnect();
     });
-message.txt
-31 KB
