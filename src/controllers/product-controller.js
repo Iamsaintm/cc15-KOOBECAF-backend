@@ -92,6 +92,14 @@ exports.getProductByUserId = async (req, res, next) => {
             },
             include: {
                 image: true,
+                usersId: {
+                    select: {
+                        firstName: true,
+                        lastName: true,
+                        profileImage: true,
+                        coverImage: true,
+                    },
+                },
             },
         });
 
