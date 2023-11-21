@@ -93,6 +93,15 @@ exports.unSubscribe = async (req, res, next) => {
             },
         });
 
+        await prisma.product.updateMany({
+            where: {
+                userId: req.user.id,
+            },
+            data: {
+                point: 0,
+            },
+        });
+
         res.status(200).json({ message: "Unsubscribe success" });
     } catch (err) {
         next(err);
